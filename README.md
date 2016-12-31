@@ -48,7 +48,7 @@ In the code above, `req.user.id` is of type `mongoose.Schema.Types.ObjectId`, th
 
 All the functions except for getting and setting the parameters return Promises.
 
-### .setLimits(limits: {action: {duration: seconds, limit: maxNumberOfTimes}})
+### .setLimits(limits: {action: {duration: Number, limit: Number}})
 
 Set the limits. Example:
 
@@ -62,9 +62,9 @@ limiter.setLimits({
 
 ### .limits()
 
-Get the limits previously set
+Get the limits previously set.
 
-### .attempt(user, action[,data])
+### .attempt(user: ObjectId, action: String[, data])
 
 Check if the given user is allowed to execute an action, return an error if not. If allowed, consider the action done and log it. `data` is added to the log of the action.
 
