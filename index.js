@@ -46,7 +46,7 @@ module.exports = function(connection) {
     if (options.action) {
       search.action = options.action;
     }
-    return UserActions.find(search).limit(limit);
+    return UserActions.find(search).sort({$natural:-1}).limit(limit);
   };
 
   return {setLimits, possible: isPossible, action: addAction, attempt};
