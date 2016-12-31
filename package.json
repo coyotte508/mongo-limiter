@@ -1,0 +1,29 @@
+{
+  "name": "mongo-limiter",
+  "version": "0.0.1",
+  "description": "Rate limiter and logger for actions by users or ips using mongoose",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coyotte508/mongo-limiter.git"
+  },
+  "keywords": [
+    "mongo",
+    "rate",
+    "limiter",
+    "users",
+    "actions"
+  ],
+  "author": "coyotte508",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/coyotte508/mongo-limiter/issues"
+  },
+  "homepage": "https://github.com/coyotte508/mongo-limiter#readme",
+  "dependencies": {
+    "co": "^4.6.0"
+  }
+}
