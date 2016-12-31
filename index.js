@@ -27,7 +27,14 @@ module.exports = function(connection) {
 
   var attempt = (user, action, data) => {
     return isPossible(user, action).then(
-      canDo => canDo ? addAction(user, action, data) : new Error(`Limit for ${user} to ${action} reached`));
+      canDo => {
+        if (canDo) {
+          /* Silence the return value of addAction */
+          return addAction(user, action, data).then(() => null);
+        } else {
+          return new Error(`Limit for ${user} to ${action} reached`);
+        }
+      });
   };
 
   var getLogs = (options) => {
