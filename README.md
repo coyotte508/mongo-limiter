@@ -46,7 +46,23 @@ In the code above, `req.user.id` is of type `mongoose.Schema.Types.ObjectId`, th
 
 ## API
 
-All the functions return Promises.
+All the functions except for getting and setting the parameters return Promises.
+
+### .setLimits(limits: {action: {duration: seconds, limit: maxNumberOfTimes}})
+
+Set the limits. Example:
+
+```js
+limiter.setLimits({
+   comment: {limit: 10, duration: 3600},
+   post: {limit: 5, duration: 3600*24},
+   edit: {limit: 20, duration: 3600}
+});
+```
+
+### .limits()
+
+Get the limits previously set
 
 ### .attempt(user, action[,data])
 

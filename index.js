@@ -8,6 +8,8 @@ module.exports = function(connection) {
     limits = newLimits;
   }
 
+  var getLimits = () => limits;
+
   var isPossible = (user, action) => {
     if (! (action in limits)) {
       return Promise.resolve(true);
@@ -49,5 +51,5 @@ module.exports = function(connection) {
     return UserActions.find(search).sort({$natural:-1}).limit(limit);
   };
 
-  return {setLimits, possible: isPossible, action: addAction, attempt};
+  return {setLimits, limits: getLimits, possible: isPossible, action: addAction, attempt};
 };
