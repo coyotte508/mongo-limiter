@@ -1,5 +1,5 @@
 # mongo-limiter
-Rate limiter and logger for actions by users or ips using mongoose
+Rate limiter and logger for actions by users using mongoose
 
 Create a **mongoose** collection with actions (expirable).
 
@@ -10,7 +10,8 @@ What does it do: log user actions (post-chapter, comment, delete-comment, edit, 
 ## Usage
 
 ```js
-const limiter = require('mongo-limiter');
+const mongoose = require('mongoose');
+const limiter = require('mongo-limiter')(mongoose.connection);
 const router = require('express').Router();
 
 limiter.setLimits({
@@ -19,8 +20,8 @@ limiter.setLimits({
    edit: {limit: 20, duration: 3600}
 });
 
-/* Use case: authenticated user posts a comment on a website run by express */
-router.post('/comment', (req, res) => {
+/* Use case: authenticated user posts a comment on a website run with express / passport / mongoose.*/
+router.post('/comment', (req, res, next) => {
   limiter.attempt(req.user.id, 'comment', req.body).then(
     (limitReached) => {
       if (limitReached) {
@@ -29,23 +30,19 @@ router.post('/comment', (req, res) => {
       }
       /* Success! Post comment to database and return page */
       //...
-    }, (err) => { /* Probably a mongoose error */
-      res.statusCode = 500;
-      res.json({error: "Internal error", details: err});
-  });
+    }, err => next(err)); { /* Probably a mongoose error */
 });
 
 /* Use case: show 20 last actions done by user in the last 24 hour */
-router.get('/logs', (req, res) => {
+router.get('/logs', (req, res, next) => {
   limiter.logs({user: req.user.id, limit: 20}).then(
     (actions) => {
       res.json(actions);
-    }, (err) => {
-        res.statusCode = 500;
-        res.json({error: "Internal error", details: err});
-    }
+    }, err => next(err));
 });
 ```
+
+In the code above, `req.user.id` is of type `mongoose.Schema.Types.ObjectId`, the `_id` type of MongoDB.
 
 ## API
 
@@ -95,5 +92,3 @@ UserActions = new mongoose.Schema({
     data:          Schema.Types.Mixed //optional
 });
 ```
-
-Assumes that **default** ObjectId scheme is used (order by date, contains timestamp).

@@ -24,6 +24,6 @@
   },
   "homepage": "https://github.com/coyotte508/mongo-limiter#readme",
   "dependencies": {
-    "co": "^4.6.0"
+    "mongoose": "^4.7.5"
   }
 }
