@@ -18,7 +18,7 @@ module.exports = function(connection) {
     var max = limits[action].limit;
     var duration = limits[action].duration;
 
-    return UserActions.count({user, action, $gt: {createdAt: Date.now() - duration*1000}}, {limit: max}).then(count => count < max);
+    return UserActions.count({user, action, createdAt: {$gt: Date.now() - duration*1000}}).limit(max).then(count => count < max);
   };
 
   var addAction = (user, action, data) => {
