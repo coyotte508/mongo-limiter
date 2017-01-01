@@ -23,7 +23,8 @@ module.exports = function(connection) {
 
   var addAction = (user, action, data) => {
     var act = new UserActions();
-    [act.user, act.action, act.data] = [user, action, data];
+    //[act.user, act.action, act.data] = [user, action, data];
+    act.user = user, act.action = action, act.data = data;
     return act.save();
   };
 
