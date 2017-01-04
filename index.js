@@ -1,24 +1,55 @@
 const actionSchema = require("./schema.js");
 
-module.exports = function(connection) {
-  const UserActions = connection.model('UserActions', actionSchema);
+module.exports = (function() {
+  var UserActions = null;
   var limits = {};
+
+  function MongoLimiterError(message, remaining) {
+    Error.captureStackTrace(this, this.constructor);
+    this.name = this.constructor.name;
+    this.message = message;
+    if (arguments.length >= 2) {
+      this.remaining = remaining;
+    }
+  };
+
+  require('util').inherits(MongoLimiterError, Error);
+
+  var init = (connection, limits) => {
+    UserActions = connection.model('UserActions', actionSchema);
+
+    if (limits) {
+      setLimits(limits);
+    }
+  }
+
+  var checkInit = (fn) => function() {
+    if (!UserActions) {
+      throw new MongoLimiterError("You must initialize mongo-limiter with a mongoose connection");
+    }
+
+    return fn.apply(this, arguments);
+  };
 
   var setLimits = (newLimits) => {
     limits = newLimits;
-  }
+  };
 
   var getLimits = () => limits;
 
-  var isPossible = (user, action) => {
+  var remaining = (user, action) => {
     if (! (action in limits)) {
-      return Promise.resolve(true);
+      return Promise.resolve(Infinity);
     }
 
     var max = limits[action].limit;
     var duration = limits[action].duration;
 
-    return UserActions.count({user, action, createdAt: {$gt: Date.now() - duration*1000}}).limit(max).then(count => count < max);
+    return UserActions.count({user, action, createdAt: {$gt: Date.now() - duration*1000}}).limit(max).then(count => max - count);
+  }
+
+  var isPossible = (user, action) => {
+    return remaining(user, action).then(rem => rem > 0);
   };
 
   var addAction = (user, action, data) => {
@@ -29,15 +60,16 @@ module.exports = function(connection) {
   };
 
   var attempt = (user, action, data) => {
-    return isPossible(user, action).then(
-      canDo => {
-        if (canDo) {
+    return remaining(user, action).then(
+      rem => {
+        if (rem > 0) {
           /* Silence the return value of addAction */
-          return addAction(user, action, data).then(() => null);
-        } else {
-          return new Error(`Limit for ${user} to ${action} reached`);
-        }
-      });
+          return addAction(user, action, data).then(() => {return {remaining: rem-1};});
+        } 
+
+        return false; //throw new MongoLimiterError(`Limit for ${user} to ${action} reached`, rem); 
+      }
+    );
   };
 
   var getLogs = (options) => {
@@ -52,5 +84,15 @@ module.exports = function(connection) {
     return UserActions.find(search).sort({$natural:-1}).limit(limit);
   };
 
-  return {setLimits, limits: getLimits, possible: isPossible, action: addAction, attempt};
-};
+  return {
+    init,
+    setLimits, 
+    limits: getLimits, 
+    possible: checkInit(isPossible),
+    remaining: checkInit(remaining), 
+    action: checkInit(addAction), 
+    attempt: checkInit(attempt),
+    getLogs: checkInit(getLogs),
+    MongoLimiterError
+  };
+}());

@@ -11,8 +11,11 @@ What does it do: log user actions (post-chapter, comment, delete-comment, edit, 
 
 ```js
 const mongoose = require('mongoose');
-const limiter = require('mongo-limiter')(mongoose.connection);
+const limiter = require('mongo-limiter');
 const router = require('express').Router();
+
+/* Do once */
+limiter.init(mongoose.connection);
 
 limiter.setLimits({
    comment: {limit: 10, duration: 3600},
@@ -23,13 +26,13 @@ limiter.setLimits({
 /* Use case: authenticated user posts a comment on a website run with express / passport / mongoose.*/
 router.post('/comment', (req, res, next) => {
   limiter.attempt(req.user.id, 'comment', req.body).then(
-    (limitReached) => {
-      if (limitReached) {
+    (success) => {
+      if (!success) {
         res.statusCode = 429;
         return res.json({error: "You can only post 10 comments per hour"});
       }
       /* Success! Post comment to database and return page */
-      //...
+      //success.remaining contains the remaining number of authorized actions
     }, err => next(err)); { /* Probably a mongoose error */
 });
 
@@ -47,6 +50,10 @@ In the code above, `req.user.id` is of type `mongoose.Schema.Types.ObjectId`, th
 ## API
 
 All the functions except for getting and setting the parameters return Promises.
+
+### .init(connection: mongoose.connection)
+
+Initialize the connection to the mongo database, needed before any calls to the other functions.
 
 ### .setLimits(limits: {action: {duration: Number, limit: Number}})
 
@@ -66,13 +73,24 @@ Get the limits previously set.
 
 ### .attempt(user: ObjectId, action: String[, data])
 
-Check if the given user is allowed to execute an action, return an error if not. If allowed, consider the action done and log it. `data` is added to the log of the action.
+Check if the given user is allowed to execute an action, returns `false` if not. If allowed, consider the action done and log it. `data` is added to the log of the action.
 
 If `data` is considerable, like if it contains all of a long post's data, you may want to remove the long parts or just keep the title of the post.
+
+Returned value: 
+
+- `false` if the attempt failed
+- `{remaining: Number}` The remaining number of times the user can do the action
+
+**Changes in 0.1.0**: This function now returns `false` in case the attempt fails, instead of an error
 
 ### .possible(user, action)
 
 Check if an action is possible and return true or false depending on it.
+
+### .remaining(user, action)
+
+Check if an action is possible and returns the number of times it can be executed. If the action is not specified in `limits`, returns `Infinity`. If the action is not possible anymore, returns `0` or a negative number.
 
 ### .action(user, action, data)
 

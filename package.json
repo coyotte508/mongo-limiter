@@ -1,6 +1,6 @@
 {
   "name": "mongo-limiter",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "Rate limiter and logger for actions by users using mongoose",
   "main": "index.js",
   "scripts": {
