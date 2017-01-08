@@ -1,5 +1,5 @@
 # mongo-limiter
-Rate limiter and logger for actions by users using mongoose
+Rate limiter and logger for actions by users or ips using mongoose
 
 Create a **mongoose** collection with actions (expirable).
 
@@ -45,7 +45,7 @@ router.get('/logs', (req, res, next) => {
 });
 ```
 
-In the code above, `req.user.id` is of type `mongoose.Schema.Types.ObjectId`, the `_id` type of MongoDB.
+Due to their unique string representations, variables of type `ObjectId` can be used as values for the `user` argument.
 
 ## API
 
@@ -100,9 +100,9 @@ Consider an action done and log it, counting toward the limit set.
 
 Return the logs for user actions in the last 24 hours, starting from the most recent. The following options can be used.
 
-#### user (ObjectId)
+#### user (String)
 
-If specifed, will only show the logs for the specified user
+If specifed, will only show the logs for the specified user. 
 
 #### action (String)
 
@@ -121,7 +121,7 @@ Model created:
 // collection with schema:
 UserActions = new mongoose.Schema({
     createdAt:     Date, //indexed, expires after 24 hours
-    user:          Schema.Types.ObjectId, //indexed
+    user:          String, //indexed
     action:        String,
     data:          Schema.Types.Mixed //optional
 });

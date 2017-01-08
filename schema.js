@@ -9,7 +9,7 @@ var actionSchema = new Schema({
     expires: 24*3600
   },
   user: {
-    type: Schema.Types.ObjectId,
+    type: String,
     index: true
   },
   action: {
