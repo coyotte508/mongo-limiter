@@ -3,9 +3,7 @@ Rate limiter and logger for actions by users or ips using mongoose
 
 Create a **mongoose** collection with actions (expirable).
 
-Check https://github.com/andjosh/mongo-throttle, another kind of limiter using MongoDb.
-
-What does it do: log user actions (post-chapter, comment, delete-comment, edit, ...). Each action is stored in a 24 hours table, expiring after that. Rate limits are able to be set:
+User actions can be logged (post-chapter, comment, delete-comment, edit, create-account, ...). Each action is stored in a 24 hours table, expiring after that. Rate limits can be set, the module implementing them following a leaky bucket model.
 
 ## Usage
 
@@ -71,9 +69,11 @@ limiter.setLimits({
 
 Get the limits previously set.
 
-### .attempt(user: ObjectId, action: String[, data])
+### .attempt(user: String, action: String[, data])
 
 Check if the given user is allowed to execute an action, returns `false` if not. If allowed, consider the action done and log it. `data` is added to the log of the action.
+
+`user` can be an ip, an `ObjectId`, or any type with a proper string representation.
 
 If `data` is considerable, like if it contains all of a long post's data, you may want to remove the long parts or just keep the title of the post.
 
