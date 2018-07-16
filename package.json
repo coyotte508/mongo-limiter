@@ -31,5 +31,12 @@
   "devDependencies": {
     "@types/mongoose": "^5.2.0",
     "typescript": "^2.9.2"
-  }
+  },
+  "files": [
+    "src",
+    "dist",
+    "index.d.ts",
+    "index.ts",
+    "tsconfig.json"
+  ]
 }
