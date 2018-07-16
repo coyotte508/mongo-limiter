@@ -65,7 +65,7 @@ limiter.setLimits({
 });
 ```
 
-### .limits()
+### .limits
 
 Get the limits previously set.
 
@@ -88,7 +88,7 @@ Returned value:
 
 Check if an action is possible and return true or false depending on it.
 
-### .remaining(user, action)
+### .remainingUses(user, action)
 
 Check if an action is possible and returns the number of times it can be executed. If the action is not specified in `limits`, returns `Infinity`. If the action is not possible anymore, returns `0` or a negative number.
 
@@ -120,9 +120,9 @@ Model created:
 // This module will create a Mongoose model 
 // collection with schema:
 UserActions = new mongoose.Schema({
-    createdAt:     Date, //indexed, expires after 24 hours
-    user:          String, //indexed
+    createdAt:     Date,   // indexed, expires after 24 hours
+    user:          String, // indexed
     action:        String,
-    data:          Schema.Types.Mixed //optional
+    data:          Schema.Types.Mixed // optional
 });
 ```
