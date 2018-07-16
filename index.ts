@@ -104,7 +104,7 @@ class MongoLimiter {
    *
    * @param options options.limit is the maximum number of entries, 50 by default
    */
-  public async logs(options: {user?: string, action?: string, limit: number}) {
+  public async logs(options: {user?: string, action?: string, limit?: number}) {
     const search: {user?: string, action?: string} = {};
     const limit = "limit" in options ? options.limit : 50;
     if (options.user) {
