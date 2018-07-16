@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "tsc"
+    "prepublish": "npm run clean && tsc",
+    "clean": "rm -Rf dist"
   },
   "repository": {
     "type": "git",
